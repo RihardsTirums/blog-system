@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the posts.
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
-        $posts = Post::with('user')->latest()->paginate(10);
-
+        $posts = Post::latest()->paginate(10);
         return view('posts.index', compact('posts'));
     }
 
@@ -26,7 +30,7 @@ class PostController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create(): View
     {
         return view('posts.create');
     }
@@ -37,18 +41,20 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'body_content' => 'required|string',
+            'body' => 'required|string',
         ]);
 
-        $post = new Post($validated);
-        $post->user_id = Auth::id();
+        $post = new Post();
+        $post->title = $validatedData['title'];
+        $post->body_content = $validatedData['body'];
+        $post->user_id = auth()->id(); // Assuming posts are associated with a user
         $post->save();
 
-        return redirect()->route('posts.index')->with('success', 'Post created successfully.');
+        return redirect()->route('posts.index')->with('success', 'Post created successfully!');
     }
 
     /**
@@ -57,7 +63,7 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\View\View
      */
-    public function show(Post $post)
+    public function show(Post $post): View
     {
         return view('posts.show', compact('post'));
     }
@@ -68,7 +74,7 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\View\View
      */
-    public function edit(Post $post)
+    public function edit(Post $post): View
     {
         $this->authorize('update', $post);
 
@@ -82,19 +88,23 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Post $post)
-    {
-        $this->authorize('update', $post);
+    public function update(Request $request, Post $post): RedirectResponse
+{
+    $this->authorize('update', $post);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body_content' => 'required|string',
-        ]);
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'body' => 'required|string',
+    ]);
 
-        $post->update($validated);
+    $post->update([
+        'title' => $validatedData['title'],
+        'body_content' => $validatedData['body'],
+    ]);
 
-        return redirect()->route('posts.index')->with('success', 'Post updated successfully.');
-    }
+    return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
+}
+
 
     /**
      * Remove the specified post from storage.
@@ -102,7 +112,7 @@ class PostController extends Controller
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Post $post)
+    public function destroy(Post $post): RedirectResponse
     {
         $this->authorize('delete', $post);
 
