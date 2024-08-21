@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Post;
 use App\Models\User;
-use App\Models\Comment;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -47,9 +46,9 @@ class PostPolicy
     /**
      * Determine if the given post can be deleted by the user.
      */
-    public function delete(User $user, Comment $comment): bool
+    public function delete(User $user, Post $post): bool
     {
-        return $user->id === $comment->user_id;
+        return $user->id === $post->user_id;
     }
 
     /**

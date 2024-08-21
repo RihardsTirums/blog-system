@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
 use App\Models\Post;
 use App\Models\User;
-use Tests\TestCase;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PostAuthorizationTest extends TestCase
@@ -18,16 +19,19 @@ class PostAuthorizationTest extends TestCase
      */
     public function test_guests_can_view_posts(): void
     {
-        $post = Post::factory()->create();
+        Post::factory()->create(['created_at' => now()->subMinute()]);
+        Post::factory()->create(['created_at' => now()]);
+        $lastPost = Post::latest()->first();
+        $truncatedTitle = Str::limit($lastPost->title, 50);
 
         $response = $this->get(route('posts.index'));
         $response->assertStatus(200)
-                 ->assertSee($post->title);
+            ->assertSeeText($truncatedTitle);
 
-        $response = $this->get(route('posts.show', $post));
+        $response = $this->get(route('posts.show', $lastPost));
         $response->assertStatus(200)
-                 ->assertSee($post->title)
-                 ->assertSee($post->body_content);
+            ->assertSeeText($lastPost->title)
+            ->assertSeeText($lastPost->body_content);
     }
 
     /**
@@ -37,17 +41,21 @@ class PostAuthorizationTest extends TestCase
      */
     public function test_authenticated_users_can_view_posts(): void
     {
+        /** @var \App\Models\User $user */
         $user = User::factory()->create();
-        $post = Post::factory()->create();
+        Post::factory()->create(['created_at' => now()->subMinute()]);
+        Post::factory()->create(['created_at' => now()]);
+        $lastPost = Post::latest()->first();
+        $truncatedTitle = Str::limit($lastPost->title, 50);
 
         $response = $this->actingAs($user)->get(route('posts.index'));
         $response->assertStatus(200)
-                 ->assertSee($post->title);
+            ->assertSeeText($truncatedTitle);
 
-        $response = $this->actingAs($user)->get(route('posts.show', $post));
+        $response = $this->actingAs($user)->get(route('posts.show', $lastPost));
         $response->assertStatus(200)
-                 ->assertSee($post->title)
-                 ->assertSee($post->body_content);
+            ->assertSeeText($lastPost->title)
+            ->assertSeeText($lastPost->body_content);
     }
 
     /**
@@ -76,6 +84,7 @@ class PostAuthorizationTest extends TestCase
      */
     public function test_authenticated_users_can_create_edit_and_delete_their_own_posts(): void
     {
+        /** @var \App\Models\User $user */
         $user = User::factory()->create();
         $post = Post::factory()->create(['user_id' => $user->id]);
 
@@ -87,7 +96,7 @@ class PostAuthorizationTest extends TestCase
 
         $response = $this->actingAs($user)->delete(route('posts.destroy', $post));
         $response->assertRedirect(route('posts.index'))
-                 ->assertSessionHas('success', 'Post deleted successfully.');
+            ->assertSessionHas('success', 'Post deleted successfully.');
     }
 
     /**
@@ -97,6 +106,7 @@ class PostAuthorizationTest extends TestCase
      */
     public function test_authenticated_users_cannot_edit_or_delete_others_posts(): void
     {
+        /** @var \App\Models\User $user */
         $user = User::factory()->create();
         $anotherUser = User::factory()->create();
         $post = Post::factory()->create(['user_id' => $anotherUser->id]);

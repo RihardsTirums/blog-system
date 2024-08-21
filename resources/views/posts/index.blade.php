@@ -24,15 +24,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($posts as $post)
         <div class="relative bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-2">{{ \Illuminate\Support\Str::limit($post->title, 50) }}</h2>
+            <h2 class="text-xl font-semibold mb-2 pr-10">{{ \Illuminate\Support\Str::limit($post->title, 50) }}</h2>
             <p class="text-gray-700">{{ \Illuminate\Support\Str::limit($post->body_content, 100) }}</p>
             <p class="text-sm text-gray-500 mt-2">By {{ $post->user->name }} on {{ $post->created_at->format('F j, Y') }} at {{ $post->created_at->format('H:i:s') }}</p>
-            
+
             @if ($post->created_at != $post->updated_at)
             <p class="text-xs text-yellow-500 mt-1">Last updated on {{ $post->updated_at->format('F j, Y') }} at {{ $post->updated_at->format('H:i:s') }}</p>
             @endif
 
-            <!-- Comment count displayed on the top right -->
             <div class="absolute top-4 right-4 flex items-center text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 mr-1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />

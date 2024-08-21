@@ -51,7 +51,7 @@ class PostController extends Controller
         $post = new Post();
         $post->title = $validatedData['title'];
         $post->body_content = $validatedData['body'];
-        $post->user_id = auth()->id(); // Assuming posts are associated with a user
+        $post->user_id = auth()->id();
         $post->save();
 
         return redirect()->route('posts.index')->with('success', 'Post created successfully!');
@@ -89,22 +89,21 @@ class PostController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Post $post): RedirectResponse
-{
-    $this->authorize('update', $post);
+    {
+        $this->authorize('update', $post);
 
-    $validatedData = $request->validate([
-        'title' => 'required|string|max:255',
-        'body' => 'required|string',
-    ]);
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
 
-    $post->update([
-        'title' => $validatedData['title'],
-        'body_content' => $validatedData['body'],
-    ]);
+        $post->update([
+            'title' => $validatedData['title'],
+            'body_content' => $validatedData['body'],
+        ]);
 
-    return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
-}
-
+        return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
+    }
 
     /**
      * Remove the specified post from storage.
