@@ -12,10 +12,21 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = ['Technology', 'Sport', 'Health', 'Lifestyle', 'Education', 'Entertainment'];
+        $categories = [
+            ['name' => 'Technology'],
+            ['name' => 'Health'],
+            ['name' => 'Lifestyle'],
+            ['name' => 'Education'],
+            ['name' => 'Travel'],
+            ['name' => 'Food'],
+            ['name' => 'Entertainment'],
+            ['name' => 'Sports'],
+            ['name' => 'Business'],
+            ['name' => 'Science'],
+        ];
 
         foreach ($categories as $category) {
-            Category::create(['name' => $category]);
+            Category::create($category);
         }
     }
 }

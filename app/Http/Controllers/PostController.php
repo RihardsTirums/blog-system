@@ -3,25 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Category;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Process\Factory;
+use Illuminate\Console\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
+/**
+ * Class PostController
+ * @package App\Http\Controllers
+ */
 class PostController extends Controller
 {
     use AuthorizesRequests;
 
     /**
-     * Display a listing of the posts.
+     * Display a listing of the posts, with optional search filtering.
      *
-     * @return \Illuminate\View\View
+     * @param Request $request
+     * @return View|Factory|Application
      */
-    public function index(): View
+    public function index(Request $request): View|Factory|Application
     {
-        $posts = Post::latest()->paginate(10);
+        $query = Post::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('body_content', 'like', "%{$search}%");
+        }
+
+        $posts = $query->with('categories', 'user', 'comments')->paginate(9);
+
         return view('posts.index', compact('posts'));
     }
 
@@ -32,27 +49,25 @@ class PostController extends Controller
      */
     public function create(): View
     {
-        return view('posts.create');
+        $categories = Category::all();
+        return view('posts.create', compact('categories'));
     }
 
     /**
      * Store a newly created post in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \App\Http\Requests\StorePostRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StorePostRequest $request): RedirectResponse
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
+        $post = Post::create([
+            'title' => $request->input('title'),
+            'body_content' => $request->input('body_content'),
+            'user_id' => $request->user()->id,
         ]);
 
-        $post = new Post();
-        $post->title = $validatedData['title'];
-        $post->body_content = $validatedData['body'];
-        $post->user_id = auth()->id();
-        $post->save();
+        $post->categories()->sync($request->input('categories', []));
 
         return redirect()->route('posts.index')->with('success', 'Post created successfully!');
     }
@@ -60,7 +75,7 @@ class PostController extends Controller
     /**
      * Display the specified post.
      *
-     * @param  \App\Models\Post  $post
+     * @param \App\Models\Post $post
      * @return \Illuminate\View\View
      */
     public function show(Post $post): View
@@ -71,36 +86,31 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified post.
      *
-     * @param  \App\Models\Post  $post
+     * @param \App\Models\Post $post
      * @return \Illuminate\View\View
      */
     public function edit(Post $post): View
     {
         $this->authorize('update', $post);
-
-        return view('posts.edit', compact('post'));
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
     }
 
     /**
      * Update the specified post in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Post  $post
+     * @param \App\Http\Requests\UpdatePostRequest $request
+     * @param \App\Models\Post $post
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Post $post): RedirectResponse
+    public function update(UpdatePostRequest $request, Post $post): RedirectResponse
     {
-        $this->authorize('update', $post);
-
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-        ]);
-
         $post->update([
-            'title' => $validatedData['title'],
-            'body_content' => $validatedData['body'],
+            'title' => $request->input('title'),
+            'body_content' => $request->input('body_content'),
         ]);
+
+        $post->categories()->sync($request->input('categories', []));
 
         return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
     }
@@ -108,7 +118,7 @@ class PostController extends Controller
     /**
      * Remove the specified post from storage.
      *
-     * @param  \App\Models\Post  $post
+     * @param \App\Models\Post $post
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Post $post): RedirectResponse
