@@ -38,6 +38,23 @@ class Post extends Model
     ];
 
     /**
+     * Boot the model.
+     *
+     * This method will be called automatically by Eloquent and is used
+     * to handle model events.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Post $post): void {
+            if (request()->has('categories')) {
+                $post->categories()->sync(request()->input('categories'));
+            }
+        });
+    }
+
+    /**
      * Get the user that owns the post.
      *
      * A post belongs to a single user.

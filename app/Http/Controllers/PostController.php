@@ -30,14 +30,14 @@ class PostController extends Controller
      */
     public function index(Request $request): View|Factory|Application
     {
-        $query = Post::query();
-
-        if ($search = $request->input('search')) {
-            $query->where('title', 'like', "%{$search}%")
-                  ->orWhere('body_content', 'like', "%{$search}%");
-        }
-
-        $posts = $query->with('categories', 'user', 'comments')->paginate(9);
+        $posts = Post::with('categories', 'user', 'comments')
+            ->when($request->input('search'), function ($query, $search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('body_content', 'like', "%{$search}%");
+            })
+            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
+            ->paginate(9);
 
         return view('posts.index', compact('posts'));
     }
@@ -61,13 +61,11 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request): RedirectResponse
     {
-        $post = Post::create([
+        Post::create([
             'title' => $request->input('title'),
             'body_content' => $request->input('body_content'),
             'user_id' => $request->user()->id,
         ]);
-
-        $post->categories()->sync($request->input('categories', []));
 
         return redirect()->route('posts.index')->with('success', 'Post created successfully!');
     }
