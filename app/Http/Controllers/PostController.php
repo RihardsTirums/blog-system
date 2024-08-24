@@ -6,9 +6,6 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Process\Factory;
-use Illuminate\Console\Application;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -22,21 +19,34 @@ class PostController extends Controller
 {
     use AuthorizesRequests;
 
+    private $categories;
+
+    public function __construct()
+    {
+        $this->categories = Category::all();
+    }
+
     /**
      * Display a listing of the posts, with optional search filtering.
      *
      * @param Request $request
-     * @return View|Factory|Application
+     * @return View
      */
-    public function index(Request $request): View|Factory|Application
+    public function index(Request $request): View
     {
-        $posts = Post::with('categories', 'user', 'comments')
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('title', 'like', "%{$search}%")
-                    ->orWhere('body_content', 'like', "%{$search}%");
+        $search = $request->input('search');
+
+        $posts = Post::with([
+            'categories',
+            'user',
+            'comments.user',
+        ])
+            ->when($search, function ($query, $search) {
+                return $query->where('title', 'ILIKE', "%{$search}%")
+                    ->orWhere('body_content', 'ILIKE', "%{$search}%");
             })
-            ->orderByDesc('updated_at')
-            ->orderByDesc('created_at')
+            ->latest('updated_at')
+            ->latest('created_at')
             ->paginate(9);
 
         return view('posts.index', compact('posts'));
@@ -45,25 +55,24 @@ class PostController extends Controller
     /**
      * Show the form for creating a new post.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function create(): View
     {
-        $categories = Category::all();
-        return view('posts.create', compact('categories'));
+        return view('posts.create', ['categories' => $this->categories]);
     }
 
     /**
      * Store a newly created post in storage.
      *
-     * @param \App\Http\Requests\StorePostRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param StorePostRequest $request
+     * @return RedirectResponse
      */
     public function store(StorePostRequest $request): RedirectResponse
     {
         Post::create([
-            'title' => $request->input('title'),
-            'body_content' => $request->input('body_content'),
+            'title' => strip_tags($request->title),
+            'body_content' => strip_tags($request->body_content),
             'user_id' => $request->user()->id,
         ]);
 
@@ -73,39 +82,44 @@ class PostController extends Controller
     /**
      * Display the specified post.
      *
-     * @param \App\Models\Post $post
-     * @return \Illuminate\View\View
+     * @param Post $post
+     * @return View
      */
     public function show(Post $post): View
     {
+        $post->load(['categories', 'user', 'comments.user']);
         return view('posts.show', compact('post'));
     }
 
     /**
      * Show the form for editing the specified post.
      *
-     * @param \App\Models\Post $post
-     * @return \Illuminate\View\View
+     * @param Post $post
+     * @return View
      */
     public function edit(Post $post): View
     {
         $this->authorize('update', $post);
-        $categories = Category::all();
-        return view('posts.edit', compact('post', 'categories'));
+        return view('posts.edit', [
+            'post' => $post,
+            'categories' => $this->categories
+        ]);
     }
 
     /**
      * Update the specified post in storage.
      *
-     * @param \App\Http\Requests\UpdatePostRequest $request
-     * @param \App\Models\Post $post
-     * @return \Illuminate\Http\RedirectResponse
+     * @param UpdatePostRequest $request
+     * @param Post $post
+     * @return RedirectResponse
      */
     public function update(UpdatePostRequest $request, Post $post): RedirectResponse
     {
+        $this->authorize('update', $post);
+
         $post->update([
-            'title' => $request->input('title'),
-            'body_content' => $request->input('body_content'),
+            'title' => strip_tags($request->title),
+            'body_content' => strip_tags($request->body_content),
         ]);
 
         $post->categories()->sync($request->input('categories', []));
@@ -116,8 +130,8 @@ class PostController extends Controller
     /**
      * Remove the specified post from storage.
      *
-     * @param \App\Models\Post $post
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Post $post
+     * @return RedirectResponse
      */
     public function destroy(Post $post): RedirectResponse
     {

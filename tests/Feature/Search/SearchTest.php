@@ -65,18 +65,24 @@ class SearchTest extends TestCase
             'body_content' => 'This post is about Node.js.',
         ]);
 
-        // Since the search is looking for the exact phrase "Laravel testing",
-        // let's update the search term in a way that reflects how the search works.
-        // The title or body_content must include "Laravel testing" as a phrase.
-
-        // For this test, we should try searching with just "Laravel" to ensure it matches.
         $response = $this->get(route('posts.index', ['search' => 'Laravel']));
 
         $response->assertStatus(200);
-
-        // Remove the debug dump for clean output
         $response->assertSeeText($matchingPost1->title);
         $response->assertSeeText($matchingPost2->title);
         $response->assertDontSeeText($nonMatchingPost->title);
+    }
+
+    public function test_keyword_search_is_case_insensitive(): void
+    {
+        $matchingPost = Post::factory()->create([
+            'title' => 'laravel testing guide',
+            'body_content' => 'This guide covers everything about testing in Laravel.',
+        ]);
+
+        $response = $this->get(route('posts.index', ['search' => 'LARAVEL']));
+
+        $response->assertStatus(200);
+        $response->assertSeeText($matchingPost->title);
     }
 }

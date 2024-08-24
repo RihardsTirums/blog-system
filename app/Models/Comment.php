@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Class Comment
+ *
+ * Represents a comment on a blog post within the application.
+ *
+ * @package App\Models
+ */
 class Comment extends Model
 {
     use HasFactory;

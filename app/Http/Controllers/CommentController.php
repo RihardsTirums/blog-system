@@ -20,9 +20,9 @@ class CommentController extends Controller
     /**
      * Store a newly created comment in storage.
      *
-     * @param \App\Http\Requests\StoreCommentRequest $request
-     * @param \App\Models\Post $post
-     * @return \Illuminate\Http\RedirectResponse
+     * @param StoreCommentRequest $request
+     * @param Post $post
+     * @return RedirectResponse
      */
     public function store(StoreCommentRequest $request, Post $post): RedirectResponse
     {
@@ -30,7 +30,7 @@ class CommentController extends Controller
 
         $post->comments()->create([
             'user_id' => $request->user()->id,
-            'body_content' => $request->input('body_content'),
+            'body_content' => strip_tags($request->input('body_content')),
         ]);
 
         return redirect()->route('posts.show', $post)->with('success', 'Comment added successfully!');
@@ -39,8 +39,8 @@ class CommentController extends Controller
     /**
      * Remove the specified comment from storage.
      *
-     * @param \App\Models\Comment $comment
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Comment $comment
+     * @return RedirectResponse
      */
     public function destroy(Comment $comment): RedirectResponse
     {

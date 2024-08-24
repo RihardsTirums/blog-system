@@ -6,6 +6,13 @@ use App\Models\Comment;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Class StoreCommentRequest
+ *
+ * Handles the validation and authorization logic for storing a new comment.
+ *
+ * @package App\Http\Requests
+ */
 class StoreCommentRequest extends FormRequest
 {
     /**

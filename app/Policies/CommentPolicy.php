@@ -4,12 +4,21 @@ namespace App\Policies;
 
 use App\Models\Comment;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
+/**
+ * Class CommentPolicy
+ *
+ * Defines authorization policies for comment-related actions.
+ *
+ * @package App\Policies
+ */
 class CommentPolicy
 {
+    use HandlesAuthorization;
+
     /**
-     * Determine whether the user can view the model.
-     * Both authenticated and unauthenticated users can view comments.
+     * Determine whether any user can view comments.
      * 
      * @return bool
      */
@@ -19,20 +28,21 @@ class CommentPolicy
     }
 
     /**
-     * Determine whether the user can create models.
-     * Only authenticated users can add comments.
+     * Determine whether the user can create comments.
      * 
+     * @param User $user
      * @return bool
      */
     public function create(User $user): bool
     {
-        return $user instanceof User;
+        return true;
     }
 
     /**
-     * Determine whether the user can delete the model.
-     * Only the author of the comment can delete it.
+     * Determine whether the user can delete the comment.
      * 
+     * @param User $user
+     * @param Comment $comment
      * @return bool
      */
     public function delete(User $user, Comment $comment): bool

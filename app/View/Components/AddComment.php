@@ -3,8 +3,16 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
+use Illuminate\Contracts\View\View;
 use App\Models\Post;
 
+/**
+ * Class AddComment
+ *
+ * A reusable component for displaying a form to add comments to a post.
+ *
+ * @package App\View\Components
+ */
 class AddComment extends Component
 {
     /**
@@ -27,9 +35,9 @@ class AddComment extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
+     * @return View|\Closure|string
      */
-    public function render(): \Illuminate\Contracts\View\View|\Closure|string
+    public function render(): View|\Closure|string
     {
         return view('components.add-comment');
     }

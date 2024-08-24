@@ -2,14 +2,16 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
 /**
  * Class UpdatePostRequest
+ *
+ * Handles authorization and validation for updating an existing post.
+ *
  * @package App\Http\Requests
  */
-class UpdatePostRequest extends FormRequest
+class UpdatePostRequest extends BasePostRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,20 +21,5 @@ class UpdatePostRequest extends FormRequest
     public function authorize(): bool
     {
         return Gate::allows('update', $this->route('post'));
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules(): array
-    {
-        return [
-            'title' => 'required|string|max:255',
-            'body_content' => 'required|string',
-            'categories' => 'required|array|min:1',
-            'categories.*' => 'exists:categories,id',
-        ];
     }
 }

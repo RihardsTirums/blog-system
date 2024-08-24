@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * Class Post
+ *
+ * Represents a blog post in the application.
+ *
+ * @package App\Models
+ */
 class Post extends Model
 {
     use HasFactory;

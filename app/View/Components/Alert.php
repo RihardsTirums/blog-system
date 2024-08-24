@@ -2,24 +2,41 @@
 
 namespace App\View\Components;
 
-use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
+/**
+ * Class Alert
+ *
+ * A reusable component for displaying alert messages.
+ *
+ * @package App\View\Components
+ */
 class Alert extends Component
 {
     /**
-     * Create a new component instance.
+     * The message to display.
+     *
+     * @var string|null
      */
-    public function __construct()
+    public ?string $message;
+
+    /**
+     * Create a new component instance.
+     *
+     * @param string|null $message
+     */
+    public function __construct(?string $message = null)
     {
-        //
+        $this->message = $message;
     }
 
     /**
      * Get the view / contents that represent the component.
+     *
+     * @return View|string
      */
-    public function render(): View|Closure|string
+    public function render(): View|string
     {
         return view('components.alert');
     }

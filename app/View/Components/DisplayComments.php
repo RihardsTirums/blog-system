@@ -2,34 +2,43 @@
 
 namespace App\View\Components;
 
-use Illuminate\View\Component;
 use App\Models\Post;
+use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
+use Closure;
 
+/**
+ * Class DisplayComments
+ *
+ * A reusable component for displaying comments associated with a post.
+ *
+ * @package App\View\Components
+ */
 class DisplayComments extends Component
 {
     /**
      * The post instance.
      *
-     * @var \App\Models\Post
+     * @var Post
      */
     public Post $post;
 
     /**
      * Create a new component instance.
      *
-     * @param  \App\Models\Post  $post
+     * @param  Post  $post
      */
     public function __construct(Post $post)
     {
-        $this->post = $post;
+        $this->post = $post->load(['comments.user']);
     }
 
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
+     * @return View|Closure|string
      */
-    public function render(): \Illuminate\Contracts\View\View|\Closure|string
+    public function render(): View|Closure|string
     {
         return view('components.display-comments');
     }

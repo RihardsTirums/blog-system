@@ -3,21 +3,30 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
+use Illuminate\Contracts\View\View;
 use App\Models\Post;
+use Closure;
 
+/**
+ * Class SinglePost
+ *
+ * A reusable component for displaying a single post with its details.
+ *
+ * @package App\View\Components
+ */
 class SinglePost extends Component
 {
     /**
      * The post instance.
      *
-     * @var \App\Models\Post
+     * @var Post
      */
     public Post $post;
 
     /**
      * Create a new component instance.
      *
-     * @param  \App\Models\Post  $post
+     * @param  Post  $post
      */
     public function __construct(Post $post)
     {
@@ -27,9 +36,9 @@ class SinglePost extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
+     * @return View|Closure|string
      */
-    public function render(): \Illuminate\Contracts\View\View|\Closure|string
+    public function render(): View|Closure|string
     {
         return view('components.single-post');
     }
