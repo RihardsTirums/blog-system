@@ -56,7 +56,7 @@ A simple blog system built with Laravel 11 and PostgreSQL, featuring comprehensi
 <ul>
 <li>Laravel v 11</li>
 <li>PHP 8.3.9</li>
-<li>MySQL 14.12</li>
+<li>PostgreSQL 14.12</li>
 <li>Composer 2.7.7</li>
 <li>Tailwind CSS</li>
 <li>JavaScript</li>
