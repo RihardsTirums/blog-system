@@ -25,7 +25,7 @@ class PostTest extends TestCase
 
     public function test_authenticated_user_can_view_posts(): void
     {
-        $posts = Post::factory(3)->create();
+        $posts = Post::factory(3)->create(['user_id' => $this->user->id]);
 
         $response = $this->actingAs($this->user)->get(route('posts.index'));
 

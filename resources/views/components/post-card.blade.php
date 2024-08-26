@@ -7,10 +7,8 @@
         @endforeach
     </div>
 
-    <!-- Add 'break-words' to ensure long words wrap and don't overflow -->
     <h2 class="text-xl font-semibold mb-2 pr-10 break-words">{{ \Illuminate\Support\Str::limit($post->title, 50) }}</h2>
-    
-    <!-- Add 'break-words' to ensure long words wrap and don't overflow -->
+
     <p class="text-gray-700 break-words">{{ \Illuminate\Support\Str::limit($post->body_content, 100) }}</p>
 
     <p class="text-sm text-gray-500 mt-2">
