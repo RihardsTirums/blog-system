@@ -6,7 +6,10 @@
     @endforeach
 </div>
 
-<h1 class="text-3xl font-bold mb-4">{{ $post->title }}</h1>
+<h1 class="text-3xl font-bold mb-4 break-words">
+    {{ $post->title }}
+</h1>
+
 <p class="text-gray-600 mb-6">
     {{ __('By') }} {{ $post->user->name }} {{ __('on') }}
     {{ $post->created_at->format('F j, Y \a\t H:i:s') }}
@@ -19,7 +22,9 @@
     </p>
 @endif
 
-<p class="text-gray-700 text-lg mb-8">{{ $post->body_content }}</p>
+<p class="text-gray-700 text-lg mb-8 break-words whitespace-pre-wrap">
+    {{ $post->body_content }}
+</p>
 
 @can('update', $post)
     <div class="flex justify-between items-center">
